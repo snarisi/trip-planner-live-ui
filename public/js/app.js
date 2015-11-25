@@ -54,6 +54,10 @@
             categories.forEach(function(category) {
                 currentDayItinerary[category] = [];
              });
+            var $lastDay = $('.day-buttons').last().prev();
+            if (currentDay === parseInt($lastDay.text())) {
+
+            }
             updateView();
         });
 
