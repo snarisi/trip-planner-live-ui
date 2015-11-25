@@ -26,14 +26,23 @@ ITINERARY ITEM:
                 itineraryGroup = '#' + dataSet + '-itinerary';
 
             var selectedItem = findObject(title, dataSet);
-            gmaps.drawLocation(selectedItem.place[0].location, dataSet);
+            gmaps.drawLocation(selectedItem, dataSet);
             $list_item = newItineraryItem(title);
+			$list_item.data('name', selectedItem.name);
             $(itineraryGroup)
                 .find('.list-group')
                 .append($list_item);
         });
-
+      
+      $('#itineraries').on('click', 'button', function(e) {
+		  $this = $(this);
+		  var title = $this.siblings('span').text();
+		  gmaps.removeLocation(title);
+		  $this.parent().remove();
+      })
     });
+  
+  
 
     function findObject(title, set) {
         var data = {

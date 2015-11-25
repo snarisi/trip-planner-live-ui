@@ -22,9 +22,14 @@ function initialize_gmaps() {
     position: myLatlng,
     title: 'Hello World!'
   });
-
+	
+  var markers = [];
+	
   // draw some locations on the map
-  function drawLocation(location, type) {
+  function drawLocation(obj, type) {
+    
+    
+    
     var icons = {
       hotel : '/images/lodging_0star.png',
       activity: '/images/star-3.png',
@@ -32,13 +37,32 @@ function initialize_gmaps() {
     }
     var opts = {};
     opts.icon = icons[type];
-    opts.position = new google.maps.LatLng(location[0], location[1]);
+    opts.position = new google.maps.LatLng(
+      obj.place[0].location[0],
+      obj.place[0].location[1]
+    );
     opts.map = map;
     var marker = new google.maps.Marker(opts);
+    marker.name = obj.name;
+	markers.push(marker);
+  }
+	
+  function removeLocation(name) {
+	var index;
+ 	var marker = markers.filter(function(marker, idx) {
+		if (marker.name === name) {
+			index = idx;
+			return true;
+		}
+		return false;
+	})[0];
+	marker.setMap(null);
+	markers.splice(index, 1);
   }
 
   window.gmaps = {
-    drawLocation : drawLocation
+    drawLocation : drawLocation,
+	removeLocation : removeLocation
   };
 
   // var hotelLocation = [40.705137, -74.007624];
