@@ -34,12 +34,27 @@ ITINERARY ITEM:
                 .append($list_item);
         });
       
-      $('#itineraries').on('click', 'button', function(e) {
-		  $this = $(this);
+		$('#itineraries').on('click', '.remove', function(e) {
+		  var $this = $(this);
 		  var title = $this.siblings('span').text();
 		  gmaps.removeLocation(title);
 		  $this.parent().remove();
-      })
+		});
+		
+		$('#add-day').on('click', function(e) {
+			var $this = $(this);
+			var prevDay = parseInt($this.prev().text(), 10); 
+			var dayNum;
+			if (typeof prevDay === 'number' && !isNaN(prevDay)) {
+				dayNum = prevDay + 1;
+			} else {
+				dayNum = 1;
+			}
+			var $button = $('<button class="btn btn-circle day-btn">' + dayNum + '</button>');
+			$this.before($button);
+		});
+
+		
     });
   
   
