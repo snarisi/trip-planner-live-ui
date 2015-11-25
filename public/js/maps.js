@@ -59,10 +59,18 @@ function initialize_gmaps() {
 	marker.setMap(null);
 	markers.splice(index, 1);
   }
+	
+	function removeAllLocations() {
+		markers.forEach(function(marker) {
+			marker.setMap(null);
+		});
+		markers = [];
+	}
 
   return {
-  drawLocation : drawLocation,
-	removeLocation : removeLocation
+  	drawLocation : drawLocation,
+	removeLocation : removeLocation,
+	removeAllLocations: removeAllLocations
   };
 
   // var hotelLocation = [40.705137, -74.007624];

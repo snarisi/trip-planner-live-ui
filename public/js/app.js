@@ -9,8 +9,14 @@
 !function() {
     $(function() {
         //model for storing our itinerary data
-        var daysModel = {},
-            currentDay = 0;
+        var daysModel = {
+				1: {
+					activity : [],
+					restaurant: [],
+					hotel : []
+				}
+			},
+            currentDay = 1;
         //google maps api
         var gmaps = initialize_gmaps();
 
@@ -19,24 +25,28 @@
             var $this = $(this),
                 title = $this.siblings('select').val(),
                 dataSet = $this.parent().attr("id"),
-                itineraryGroup = '#' + dataSet + '-itinerary';
-
-            var selectedItem = findObject(title, dataSet);
-            //push the itinerary item into the correct array in our days model
+				selectedItem = findObject(title, dataSet);
+            
+			//push the itinerary item into the correct array in our days model
             daysModel[currentDay][dataSet].push(selectedItem);
-            gmaps.drawLocation(selectedItem, dataSet);
-            $list_item = newItineraryItem(title);
-            $list_item.data('name', selectedItem.name);
-            $(itineraryGroup)
-                .find('.list-group')
-                .append($list_item);
+			updateView();
         });
 
         $('#itineraries').on('click', '.remove', function(e) {
             var $this = $(this),
-                title = $this.siblings('span').text();
-            gmaps.removeLocation(title);
-            $this.parent().remove();
+                title = $this.siblings('span').text(),
+				dataSet = $this.parents('.itinerary-group').attr('id').split('-')[0],
+				targetArray = daysModel[currentDay][dataSet],
+				length = targetArray.length;
+
+			for (var i = 0; i < length; i++) {
+				if (targetArray[i].name === title) {
+					targetArray.splice(i, 1);
+					break;
+				}
+			}		
+			
+			updateView();
         });
 
         $('#add-day').on('click', function(e) {
@@ -65,26 +75,50 @@
             currentDay = parseInt($this.text(), 10);
             $('.active').removeClass('active');
             $this.addClass('active');
+			updateView();
         });
 
 
+		function findObject(title, set) {
+			var data = {
+				hotel: all_hotels,
+				activity: all_activities,
+				restaurant: all_restaurants
+			}
+			return data[set].filter(function(element) {
+				return element.name === title;
+			})[0];
+		}
+
+		function newItineraryItem(title) {
+			var $list_item = $('<div class="itinerary-item"></div>');
+			$list_item.append($('<span class="title">' + title + '</span>'))
+				.append($('<button class="btn btn-xs btn-danger remove btn-circle">x</button>'));
+			return $list_item;
+		}
+
+		function updateView() {
+			var categories = Object.keys(daysModel[currentDay]);
+			$('.list-group').empty();
+			gmaps.removeAllLocations();
+			
+			categories.forEach(function (category) {
+				daysModel[currentDay][category].forEach(function(item) {
+					addItineraryItem(item, category);
+				});
+			});
+		}
+
+		function addItineraryItem(selectedItem, dataSet) {
+			var itineraryGroup = '#' + dataSet + '-itinerary';
+			
+			gmaps.drawLocation(selectedItem, dataSet);
+            $list_item = newItineraryItem(selectedItem.name);
+            $(itineraryGroup)
+                .find('.list-group')
+                .append($list_item);			
+		}
+		
     });
 
-    function findObject(title, set) {
-        var data = {
-            hotel: all_hotels,
-            activity: all_activities,
-            restaurant: all_restaurants
-        }
-        return data[set].filter(function(element) {
-            return element.name === title;
-        })[0];
-    }
-
-    function newItineraryItem(title) {
-        var $list_item = $('<div class="itinerary-item"></div>');
-        $list_item.append($('<span class="title">' + title + '</span>'))
-            .append($('<button class="btn btn-xs btn-danger remove btn-circle">x</button>'));
-        return $list_item;
-    }
 }();
