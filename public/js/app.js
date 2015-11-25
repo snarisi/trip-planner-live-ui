@@ -1,23 +1,19 @@
-/*
-TODO:
-Select and set the hotel
-Select and add a restaurant
-Select and add an activity
-Remove the hotel
-Remove a restaurant
-Remove an activity
-Add a day
-Remove a day
-Switch days
+// {
+//     1: {
+//         restaurants : [],
+//         activities: []
+//     }
+// }
 
-ITINERARY ITEM:
-<div class="itinerary-item">
-<span class="title">Andaz Wall Street</span>
-<button class="btn btn-xs btn-danger remove btn-circle">x</button>
-</div>
-*/
+
 !function() {
     $(function() {
+        //model for storing our itinerary data
+        var daysModel = {},
+            currentDay = 0;
+        //google maps api
+        var gmaps = initialize_gmaps();
+
         $('.add-btn').on('click', function() {
 
             var $this = $(this),
@@ -26,38 +22,53 @@ ITINERARY ITEM:
                 itineraryGroup = '#' + dataSet + '-itinerary';
 
             var selectedItem = findObject(title, dataSet);
+            //push the itinerary item into the correct array in our days model
+            daysModel[currentDay][dataSet].push(selectedItem);
             gmaps.drawLocation(selectedItem, dataSet);
             $list_item = newItineraryItem(title);
-			$list_item.data('name', selectedItem.name);
+            $list_item.data('name', selectedItem.name);
             $(itineraryGroup)
                 .find('.list-group')
                 .append($list_item);
         });
-      
-		$('#itineraries').on('click', '.remove', function(e) {
-		  var $this = $(this);
-		  var title = $this.siblings('span').text();
-		  gmaps.removeLocation(title);
-		  $this.parent().remove();
-		});
-		
-		$('#add-day').on('click', function(e) {
-			var $this = $(this);
-			var prevDay = parseInt($this.prev().text(), 10); 
-			var dayNum;
-			if (typeof prevDay === 'number' && !isNaN(prevDay)) {
-				dayNum = prevDay + 1;
-			} else {
-				dayNum = 1;
-			}
-			var $button = $('<button class="btn btn-circle day-btn">' + dayNum + '</button>');
-			$this.before($button);
-		});
 
-		
+        $('#itineraries').on('click', '.remove', function(e) {
+            var $this = $(this),
+                title = $this.siblings('span').text();
+            gmaps.removeLocation(title);
+            $this.parent().remove();
+        });
+
+        $('#add-day').on('click', function(e) {
+            var $this = $(this),
+                prevDay = parseInt($this.prev().text(), 10),
+                dayNum;
+            if (typeof prevDay === 'number' && !isNaN(prevDay)) {
+                dayNum = prevDay + 1;
+            } else {
+                dayNum = 1;
+            }
+            var $button = $('<button class="btn btn-circle day-btn">' + dayNum + '</button>');
+            daysModel[dayNum] = {
+                activity : [],
+                restaurant: [],
+                hotel : []
+            };
+            $this.before($button);
+        });
+
+        $('.day-buttons').on('click', '.day-btn', function (e) {
+            $this = $(this);
+            if ($this.attr('id') === 'add-day'){
+                return;
+            }
+            currentDay = parseInt($this.text(), 10);
+            $('.active').removeClass('active');
+            $this.addClass('active');
+        });
+
+
     });
-  
-  
 
     function findObject(title, set) {
         var data = {
