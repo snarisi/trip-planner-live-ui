@@ -26,7 +26,7 @@
                 title = $this.siblings('select').val(),
                 dataSet = $this.parent().attr("id"),
 				selectedItem = findObject(title, dataSet);
-            
+
 			//push the itinerary item into the correct array in our days model
             daysModel[currentDay][dataSet].push(selectedItem);
 			updateView();
@@ -44,9 +44,17 @@
 					targetArray.splice(i, 1);
 					break;
 				}
-			}		
-			
+			}
 			updateView();
+        });
+
+        $('#day-title').on('click', '.remove', function() {
+            var currentDayItinerary = daysModel[currentDay],
+                categories = Object.keys(currentDayItinerary);
+            categories.forEach(function(category) {
+                currentDayItinerary[category] = [];
+             });
+            updateView();
         });
 
         $('#add-day').on('click', function(e) {
@@ -73,6 +81,7 @@
                 return;
             }
             currentDay = parseInt($this.text(), 10);
+            $('#day-label').text('Day ' + currentDay);
             $('.active').removeClass('active');
             $this.addClass('active');
 			updateView();
@@ -101,7 +110,7 @@
 			var categories = Object.keys(daysModel[currentDay]);
 			$('.list-group').empty();
 			gmaps.removeAllLocations();
-			
+
 			categories.forEach(function (category) {
 				daysModel[currentDay][category].forEach(function(item) {
 					addItineraryItem(item, category);
@@ -111,14 +120,14 @@
 
 		function addItineraryItem(selectedItem, dataSet) {
 			var itineraryGroup = '#' + dataSet + '-itinerary';
-			
+
 			gmaps.drawLocation(selectedItem, dataSet);
             $list_item = newItineraryItem(selectedItem.name);
             $(itineraryGroup)
                 .find('.list-group')
-                .append($list_item);			
+                .append($list_item);
 		}
-		
+
     });
 
 }();
